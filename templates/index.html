@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>image deepfake detection</title>
+</head>
+<body>
+<h1>Image deepfake detection</h1>
+<p>Пришли фото и я скажу настоящее оно или нет!</p>
+
+<blockquote>
+    <p>Рекомендации:</p>
+    <cite>— Загрузите квадратное изображение лица</cite>
+</blockquote>
+
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="image">
+        <input type="submit" value="Проверить">
+    </form>
+    {% if is_image_load %}
+      {% if result == 0 %}
+        <div style="color: green; font-weight: bold;">✅ Реальное изображение</div>
+      {% else %}
+        <div style="color: red; font-weight: bold;">🚨 Обнаружен фейк!</div>
+      {% endif %}
+     <img src="{{ uploaded_image }}" alt="Загруженное изображение" style="max-width: 300px; margin-top: 20px;">
+    {% endif %}
+</body>
+</html>
