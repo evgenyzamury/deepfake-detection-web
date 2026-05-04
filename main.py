@@ -43,13 +43,19 @@ def upload():
     image_tensor = image_tensor.unsqueeze(0)
 
     # result model
-    output = inception_model(image_tensor)
-    result = int(torch.argmax(output))
+    with torch.no_grad():
+        output = inception_model(image_tensor)
+        result = int(torch.argmax(output))
+        probs = torch.softmax(output, dim=1)
+        prob_real = round(probs[0][0].item() * 100, 2)
+        prob_fake = round(probs[0][1].item() * 100, 2)
+        print(f'{prob_real=}, {prob_fake=}')
+
     # fake = 1       real = 0
 
 
     return render_template('./index.html', result=result, is_image_load=1,
-                           uploaded_image=uploaded_image)
+                           uploaded_image=uploaded_image, prob_fake=prob_fake, prob_real=prob_real)
 
 
 if __name__ == "__main__":
