@@ -29,7 +29,8 @@ def upload():
         return render_template('./index.html', error='Пожалуйста, выберите изображение')
 
     image_bytes = file.read()
-    uploaded_image = image_to_base64(image_bytes)
+    image = Image.open(BytesIO(image_bytes)).convert("RGB")
+    uploaded_image = image_to_base64(image)
 
     files = {
         'image': (file.filename, BytesIO(image_bytes), file.content_type)
