@@ -1,12 +1,8 @@
 from flask import Flask, render_template, request, jsonify
-from model import inception_model, preprocess
-import torch
 import base64
 from io import BytesIO
 from PIL import Image
-
-# предпочитаемый размер изображения для модели
-TARGET_SIZE = (256, 256)
+import requests
 
 app = Flask(__name__)
 
@@ -32,27 +28,23 @@ def upload():
     if 'image' not in request.files or file.filename == '':
         return render_template('./index.html', error='Пожалуйста, выберите изображение')
 
+    image_bytes = file.read()
+    uploaded_image = image_to_base64(image_bytes)
 
-    file = request.files['image']
-    image = Image.open(file.stream).convert('RGB')
-    image_resized = image.resize(TARGET_SIZE, Image.Resampling.LANCZOS)
-    uploaded_image = image_to_base64(image)
+    files = {
+        'image': (file.filename, BytesIO(image_bytes), file.content_type)
+    }
 
-    # preprocess image
-    image_tensor = preprocess(image_resized)
-    image_tensor = image_tensor.unsqueeze(0)
+    response = requests.post(
+        'http://127.0.0.1:8081/api/gi',
+        files=files,
+        timeout=60
+    )
 
-    # result model
-    with torch.no_grad():
-        output = inception_model(image_tensor)
-        result = int(torch.argmax(output))
-        probs = torch.softmax(output, dim=1)
-        prob_real = round(probs[0][0].item() * 100, 2)
-        prob_fake = round(probs[0][1].item() * 100, 2)
-        print(f'{prob_real=}, {prob_fake=}')
-
-    # fake = 1       real = 0
-
+    data = response.json()
+    result = data['result']
+    prob_fake = data['prob_fake']
+    prob_real = data['prob_real']
 
     return render_template('./index.html', result=result, is_image_load=1,
                            uploaded_image=uploaded_image, prob_fake=prob_fake, prob_real=prob_real)
