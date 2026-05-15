@@ -37,7 +37,7 @@ def upload():
     }
 
     response = requests.post(
-        'http://127.0.0.1:8081/api/gi',
+        'http://127.0.0.1:8081/api/predict',
         files=files,
         timeout=60
     )
