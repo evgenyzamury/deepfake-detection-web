@@ -40,7 +40,8 @@ async def handle_photo(update: Update, context: ContextTypes.DEFAULT_TYPE):
         image_resized = image.resize(TARGET_SIZE, Image.Resampling.LANCZOS)
 
         # prepocess image
-        image_tensor = preprocess(image_resized)
+        image_tensor = preprocess(image_resized).unsqueeze(0)
+
 
         # Вызываем модель
         with torch.no_grad():
